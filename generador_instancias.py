@@ -11,7 +11,7 @@ def generar_instancias(i):
     i-=1
     archivo = open("instancias.dzn", "w")
 
-    # Instancias pequeñas
+    # Instancias medianas
     if i <= 4:
         rangos_asignaturas_medianas[i] = rangos_asignaturas_medianas[i].split("-")
         rango_inferior = int(rangos_asignaturas_medianas[i][0])
