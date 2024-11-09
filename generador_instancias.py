@@ -12,9 +12,6 @@ def generar_instancias(i):
     # Se resta 1 para que el índice sea correcto
     i-=1
 
-    # Se crea el archivo instancias.dzn
-    archivo = open("instancias.dzn", "w")
-
     # Código para instancias medianas
     if i <= 4:
         rangos_asignaturas_medianas[i] = rangos_asignaturas_medianas[i].split("-")  # Se separa el rango en dos números
@@ -36,6 +33,9 @@ def generar_instancias(i):
         rango_superior = int(rangos_salas_grandes[i][1])                            # Se obtiene el rango superior
         cant_salas = r(rango_inferior, rango_superior)                              # Se obtiene la cantidad de salas usando random
     
+    # Se crea el archivo instancias.dzn
+    archivo = open(str("instancia_{}_{}.dzn".format(cant_asignaturas, cant_salas)), "w")
+
     auxiliar(archivo, cant_asignaturas, cant_salas)
     archivo.close()
 
@@ -43,37 +43,47 @@ def generar_instancias(i):
 
 def auxiliar(archivo, cant_asignaturas, cant_salas):
     
-    # Calcula la cantidad de asignaturas que tendrán 2 bloques (65% de las asignaturas)
-    dosBloques = int(cant_asignaturas * 0.65)
+    # Se crea una lista de las asignaturas indispensables
+    indispensables = []
+    for i in range(cant_asignaturas):
+        if (i + 1) % 5 == 0:            # Cada 5 asignaturas se asigna una como indispensable
+            indispensables.append(1)
+        else:
+            indispensables.append(0)    # 0 en caso de que la asignatura no sea indispensable
+    s(indispensables)
+
+    # Calcula la cantidad de asignaturas que tendrán 1 bloque (65% de las asignaturas por B = 1)
+    unBloque = int(cant_asignaturas * 0.65)
+    bloques = [1] * unBloque + [2] * (cant_asignaturas - unBloque)
+    s(bloques)
     
     # Se escriben las variables en el archivo
     for i in range(cant_asignaturas):
-        archivo.write(f"asignatura_prioridad_{i+1} = {r(1, 10)};\n")                # Se asigna una prioridad a la asignatura
+
+        # Se indica si la asignatura es indispensable
+        archivo.write(f"indispensabilidad_asignatura_{i+1} = {indispensables[i]};\n")
+
+        # Se asigna una prioridad a la asignatura
+        if indispensables[i] == 1:
+            archivo.write(f"prioridad_asignatura_{i+1} = {r(6,10)};\n") # En caso de que sea indispensable
+        else:
+            archivo.write(f"prioridad_asignatura_{i+1} = {r(1,5)};\n")  # En caso de que no sea indispensable
         
         # Se asigna la cantidad de bloques a la asignatura
-        if i < dosBloques:
-            archivo.write(f"asignatura_{i+1}_cantidad_bloques = 2;\n")              # 65% de las asignaturas tendrán 2 bloques
-        else:
-            archivo.write(f"asignatura_{i+1}_cantidad_bloques = 1;\n")              # 35% de las asignaturas tendrán 1 bloque
+        archivo.write(f"bloques_asignatura_{i+1} = {bloques[i]};\n")
         
         # Se asigna una cantidad de alumnos interesados a la asignatura basados en nuestro valor de A (A = 1)
         archivo.write(f"alumnos_interesados_asignatura_{i+1} = {r(10, 40)};\n")
         
         # Se asigna una cantidad de horas a la asignatura basados la disponibilidad de los profesores
-        disponibilidad = []
-        for j in range(35):
-            cant_disponibilidades = r(14, 28)   # Se asigna una cantidad de disponibilidades a cada profesor (Se explica en el informe)
-            if j < cant_disponibilidades:
-                disponibilidad.append(1)        # 1 en caso de que el profesor esté disponible
-            else:
-                disponibilidad.append(0)        # 0 en caso de que el profesor no esté disponible
-        s(disponibilidad)
+        disponibilidad = [[r(0,1) for _ in range(7)] for _ in range(5)]
+        
+
         archivo.write(f"asignatura_{i+1}_disponibilidad = {disponibilidad};\n")
 
     for i in range(cant_salas):
         # Se asigna una capacidad a la sala basados en nuestro valor de A (A = 1)
         archivo.write(f"capacidad_sala_{i+1} = {r(20, 45)};\n")
-
 
 print("         Cant.asignaturas    Cant.salas")
 print("1:             40-45             3")
