@@ -76,13 +76,27 @@ def auxiliar(archivo, cant_asignaturas, cant_salas):
         archivo.write(f"alumnos_interesados_asignatura_{i+1} = {r(10, 40)};\n")
         
         # Se asigna una cantidad de horas a la asignatura basados la disponibilidad de los profesores
-        disponibilidad = [[("true" if r(0, 1) else "false") for _ in range(7)] for _ in range(5)]
+        disponibilidad = []
+        for _ in range(5):
+            if bloques[i] == 2:
+                # Ensure two 'true's are next to each other
+                row = ["false"] * 7
+                start = r(0, 5)
+                row[start] = "true"
+                row[start + 1] = "true"
+            else:
+                # Ensure there is a separation
+                row = ["false"] * 7
+                true_positions = [0, 2, 4, 6]
+                s(true_positions)
+                row[true_positions[0]] = "true"
+            disponibilidad.append(row)
         archivo.write(f"asignatura_{i+1}_disponibilidad = [|\n")
         for j in disponibilidad:
             if disponibilidad.index(j) + 1 == len(disponibilidad):
-                archivo.write(f"    {','.join(j)}|];\n\n")
+                archivo.write(f"    {', '.join(j)}|];\n\n")
             else:
-                archivo.write(f"    {','.join(j)}|\n")
+                archivo.write(f"    {', '.join(j)}|\n")
 
     archivo.write("% Parametros capacidad de salas\n")
     for i in range(cant_salas):
