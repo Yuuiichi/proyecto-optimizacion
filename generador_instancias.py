@@ -47,9 +47,9 @@ def auxiliar(archivo, cant_asignaturas, cant_salas):
     indispensables = []
     for i in range(cant_asignaturas):
         if (i + 1) % 5 == 0:            # Cada 5 asignaturas se asigna una como indispensable
-            indispensables.append(1)
+            indispensables.append("true")
         else:
-            indispensables.append(0)    # 0 en caso de que la asignatura no sea indispensable
+            indispensables.append("false")    # 0 en caso de que la asignatura no sea indispensable
     s(indispensables)
 
     # Calcula la cantidad de asignaturas que tendrán 1 bloque (65% de las asignaturas por B = 1)
@@ -61,7 +61,7 @@ def auxiliar(archivo, cant_asignaturas, cant_salas):
     for i in range(cant_asignaturas):
 
         # Se indica si la asignatura es indispensable
-        archivo.write(f"indispensabilidad_asignatura_{i+1} = {indispensables[i]};\n")
+        archivo.write(f"% Parametros de Asignatura {i+1}\nindispensabilidad_asignatura_{i+1} = {indispensables[i]};\n")
 
         # Se asigna una prioridad a la asignatura
         if indispensables[i] == 1:
@@ -76,11 +76,15 @@ def auxiliar(archivo, cant_asignaturas, cant_salas):
         archivo.write(f"alumnos_interesados_asignatura_{i+1} = {r(10, 40)};\n")
         
         # Se asigna una cantidad de horas a la asignatura basados la disponibilidad de los profesores
-        disponibilidad = [[r(0,1) for _ in range(7)] for _ in range(5)]
-        
+        disponibilidad = [[("true" if r(0, 1) else "false") for _ in range(7)] for _ in range(5)]
+        archivo.write(f"asignatura_{i+1}_disponibilidad = [|\n")
+        for j in disponibilidad:
+            if disponibilidad.index(j) + 1 == len(disponibilidad):
+                archivo.write(f"    {','.join(j)}|];\n\n")
+            else:
+                archivo.write(f"    {','.join(j)}|\n")
 
-        archivo.write(f"asignatura_{i+1}_disponibilidad = {disponibilidad};\n")
-
+    archivo.write("% Parametros capacidad de salas\n")
     for i in range(cant_salas):
         # Se asigna una capacidad a la sala basados en nuestro valor de A (A = 1)
         archivo.write(f"capacidad_sala_{i+1} = {r(20, 45)};\n")
